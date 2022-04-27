@@ -16,7 +16,6 @@ motor_speed = 100
 MotorLeft.setSpeed(motor_speed)
 MotorRight.setSpeed(motor_speed)
 
-print(MoHat.FORWARD)
 MotorLeft.run(MoHat.FORWARD)
 time.sleep(2.25)
 MotorLeft.run(MoHat.RELEASE)
