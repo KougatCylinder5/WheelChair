@@ -2,13 +2,26 @@ import cv2
 import time
 import numpy
 import pyautogui as GUI
+from Adafruit_MotorHAT import Adafruit_MotorHAT #control motors
 
+import mechatronics as mech
 
 vid = cv2.VideoCapture(0)
 if(not vid.isOpened()):
     print("Camera Failed to Load... Exiting")
     time.sleep(2) # 
     exit() # exit program
+    
+MoHat = Adafruit_MotorHAT(addr=0x60) # open hat controller
+
+M3 = 3#define motors
+M4 = 4
+
+MotorLeft = MoHat.getMotor(M4) # open left motor
+MotorRight = MoHat.getMotor(M3) # open right motor
+
+motor_speed = 0 # set speed to zero for default
+    
 width, height = GUI.size()
 UI = numpy.zeros((height,width,3), numpy.uint8)
 #UI[round(width/3):round((width/3)*2),round(height/3):round((height/3)*2)] = [0,0,255]
@@ -27,11 +40,20 @@ cv2.polylines(UI,[rightArrow],False,(0,255,0),10)
 
 cv2.namedWindow('Video') # create window for video
 cv2.namedWindow('Wheelchair Controller',cv2.WINDOW_FULLSCREEN)
+
+forwardButton = 25
+reverseButton = 24
+pivotButton = 7
+
+mech.initialize_input_pin_high(reverseButton)
+mech.initialize_input_pin_high(forwardButton)
+mech.initialize_input_pin_high(pivotButton)
+
 while True:
     cv2.imshow('Wheelchair Controller', UI)
     cv2.moveWindow('Wheelchair Controller',-20,0)
     ret, frame = vid.read() # read the camera
-    frame = frame[::2,::2] # reduce the size of the camera by a power of two
+    frame = frame[::4,::4] # reduce the size of the camera by a power of two
     frame = numpy.array(frame, dtype = 'uint8') # reformat the array after the slicing
     HSV = cv2.cvtColor(frame.copy(),cv2.COLOR_BGR2HSV) # convert a copy of the camera image to HSV using frame.copy()
     point = cv2.inRange(HSV,(110,120,90),(120,250,180)) # search for colors in-range of the zone
@@ -45,8 +67,20 @@ while True:
         if(abs(x0) > 15 or abs(y0) > 15):
             GUI.moveRel(-x0,y0) # move the mouse by the (x0,y0)
     except:
-        pass # pass the exception so that it doesn't error
+        pass 
+    #try:    
+    if(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == False):
+        print('press' + str(time.time()))
+    elif(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == True):
+        print('forward')
+    #except:
+    #    pass
+            
+     # pass the exception so that it doesn't error
     cv2.imshow('Video',frame) # show the frame
+    
+    
+    
     if(cv2.waitKey(1) == ord('`')): # exit key
         cv2.destroyAllWindows() # clean up
         break # 
