@@ -71,26 +71,44 @@ while True:
             GUI.moveRel(-x0,y0) # move the mouse by the (x0,y0)
     except:
         pass 
-    #try:    
-    if(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == False):
-        
-        print(GUI.position()[0],GUI.size()[0]/2 + GUI.size()[0]/4.5)
-        if(GUI.position()[0] < GUI.size()[0]/2 - GUI.size()[0]/4.5):
-            MotorLeft.run(MoHat.FORWARD)
-            MotorRight.run(MoHat.BACKWARD)
-        elif(GUI.position()[0] > GUI.size()[0]/2 + GUI.size()[0]/4.5):
-            pass
-        else:
-            pass
+    try:    
+        if(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == False):
             
-    elif(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == True):
-        print('forward')
-        
-    else:
-        MotorLeft.run(MoHat.RELEASE)
-        MotorRight.run(MoHat.RELEASE)
-    #except:
-    #    pass
+            print(GUI.position()[0],GUI.size()[0]/2 + GUI.size()[0]/4.5)
+            if(GUI.position()[0] < GUI.size()[0]/2 - GUI.size()[0]/4.5):
+                MotorLeft.run(MoHat.FORWARD)
+                MotorRight.run(MoHat.BACKWARD)
+            elif(GUI.position()[0] > GUI.size()[0]/2 + GUI.size()[0]/4.5):
+                pass
+            else:
+                pass
+                
+        elif(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == True):
+            pos = GUI.position()[0]
+            size = GUI.size()[0]
+            print(pos > size/2 - size/4)
+            print(pos < size/2 + size/4)
+            if(pos > size/2 - size/6 and pos < size/2 + size/6):
+                MotorLeft.run(MoHat.FORWARD)
+                MotorRight.run(MoHat.FORWARD)
+        elif(mech.read_pin(forwardButton) == True and mech.read_pin(reverseButton) == False):
+            pos = GUI.position()[0]
+            size = GUI.size()[0]
+            print(pos > size/2 - size/4)
+            print(pos < size/2 + size/4)
+            if(pos > size/2 - size/6 and pos < size/2 + size/6):
+                MotorLeft.run(MoHat.BACKWARD)
+                MotorRight.run(MoHat.BACKWARD)
+            if(pos < size/2 - size/6):
+                MotorLeft.setSpeed(50)
+                MotorLeft.run(MoHat.BACKWARD)
+                MotorRight.run(MoHat.BACKWARD)
+                MotorLeft.setSpeed(100)
+        else:
+            MotorLeft.run(MoHat.RELEASE)
+            MotorRight.run(MoHat.RELEASE)
+    except:
+        pass
             
      # pass the exception so that it doesn't error
     cv2.imshow('Video',frame) # show the frame
