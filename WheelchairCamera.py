@@ -20,8 +20,11 @@ M4 = 4
 MotorLeft = MoHat.getMotor(M4) # open left motor
 MotorRight = MoHat.getMotor(M3) # open right motor
 
-motor_speed = 0 # set speed to zero for default
-    
+motor_speed = 100 # set speed to zero for default
+
+MotorLeft.setSpeed(motor_speed)
+MotorRight.setSpeed(motor_speed)
+
 width, height = GUI.size()
 UI = numpy.zeros((height,width,3), numpy.uint8)
 #UI[round(width/3):round((width/3)*2),round(height/3):round((height/3)*2)] = [0,0,255]
@@ -70,9 +73,22 @@ while True:
         pass 
     #try:    
     if(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == False):
-        print('press' + str(time.time()))
+        
+        print(GUI.position()[0],GUI.size()[0]/2 + GUI.size()[0]/4.5)
+        if(GUI.position()[0] < GUI.size()[0]/2 - GUI.size()[0]/4.5):
+            MotorLeft.run(MoHat.FORWARD)
+            MotorRight.run(MoHat.BACKWARD)
+        elif(GUI.position()[0] > GUI.size()[0]/2 + GUI.size()[0]/4.5):
+            pass
+        else:
+            pass
+            
     elif(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == True):
         print('forward')
+        
+    else:
+        MotorLeft.run(MoHat.RELEASE)
+        MotorRight.run(MoHat.RELEASE)
     #except:
     #    pass
             
