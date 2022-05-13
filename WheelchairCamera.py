@@ -52,6 +52,8 @@ mech.initialize_input_pin_high(reverseButton)
 mech.initialize_input_pin_high(forwardButton)
 mech.initialize_input_pin_high(pivotButton)
 
+motorLeftSpeed = 100
+motorRightSpeed = 100
 while True:
     cv2.imshow('Wheelchair Controller', UI)
     cv2.moveWindow('Wheelchair Controller',-20,0)
@@ -71,42 +73,63 @@ while True:
             GUI.moveRel(-x0,y0) # move the mouse by the (x0,y0)
     except:
         pass 
-    try:    
+    try:
+        
         if(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == False):
+            pos = GUI.position()[0]
+            size = GUI.size()[0]
+            motorRightSpeed = 100
+            motorLeftSpeed = 100
+            MotorLeft.setSpeed(motorLeftSpeed)
+            MotorRight.setSpeed(motorRightSpeed)
             
-            print(GUI.position()[0],GUI.size()[0]/2 + GUI.size()[0]/4.5)
-            if(GUI.position()[0] < GUI.size()[0]/2 - GUI.size()[0]/4.5):
+            if(pos < size/2 - size/6):
+                print('LEFT')
+                MotorLeft.run(MoHat.BACKWARD)
+                MotorRight.run(MoHat.FORWARD)
+            if(pos > size/2 + size/6):
+                print('RIGHT')
                 MotorLeft.run(MoHat.FORWARD)
-                MotorRight.run(MoHat.BACKWARD)
-            elif(GUI.position()[0] > GUI.size()[0]/2 + GUI.size()[0]/4.5):
-                pass
-            else:
-                pass
-                
+                MotorRight.run(MoHat.BACKWARD)     
         elif(mech.read_pin(forwardButton) == False and mech.read_pin(reverseButton) == True):
             pos = GUI.position()[0]
             size = GUI.size()[0]
-            print(pos > size/2 - size/4)
-            print(pos < size/2 + size/4)
+            MotorLeft.setSpeed(motorLeftSpeed)
+            MotorRight.setSpeed(motorRightSpeed)
             if(pos > size/2 - size/6 and pos < size/2 + size/6):
+                MotorLeft.run(MoHat.FORWARD)
+                MotorRight.run(MoHat.FORWARD)
+            if(pos < size/2 - size/6):
+                motorLeftSpeed = 50
+                MotorLeft.run(MoHat.FORWARD)
+                MotorRight.run(MoHat.FORWARD)
+            if(pos > size/2 + size/6):
+                motorRightSpeed = 50
                 MotorLeft.run(MoHat.FORWARD)
                 MotorRight.run(MoHat.FORWARD)
         elif(mech.read_pin(forwardButton) == True and mech.read_pin(reverseButton) == False):
             pos = GUI.position()[0]
             size = GUI.size()[0]
-            print(pos > size/2 - size/4)
-            print(pos < size/2 + size/4)
+            MotorLeft.setSpeed(motorLeftSpeed)
+            MotorRight.setSpeed(motorRightSpeed)
             if(pos > size/2 - size/6 and pos < size/2 + size/6):
                 MotorLeft.run(MoHat.BACKWARD)
                 MotorRight.run(MoHat.BACKWARD)
             if(pos < size/2 - size/6):
-                MotorLeft.setSpeed(50)
+                motorLeftSpeed = 50
                 MotorLeft.run(MoHat.BACKWARD)
                 MotorRight.run(MoHat.BACKWARD)
-                MotorLeft.setSpeed(100)
+            if(pos > size/2 + size/6):
+                motorRightSpeed = 50
+                MotorLeft.run(MoHat.BACKWARD)
+                MotorRight.run(MoHat.BACKWARD)
         else:
             MotorLeft.run(MoHat.RELEASE)
             MotorRight.run(MoHat.RELEASE)
+            motorRightSpeed = 100
+            motorLeftSpeed = 100
+            MotorLeft.setSpeed(motorLeftSpeed)
+            MotorRight.setSpeed(motorRightSpeed)
     except:
         pass
             
