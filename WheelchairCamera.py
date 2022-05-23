@@ -61,16 +61,19 @@ while True:
     frame = frame[::4,::4] # reduce the size of the camera by a power of two
     frame = numpy.array(frame, dtype = 'uint8') # reformat the array after the slicing
     HSV = cv2.cvtColor(frame.copy(),cv2.COLOR_BGR2HSV) # convert a copy of the camera image to HSV using frame.copy()
-    point = cv2.inRange(HSV,(110,120,90),(120,250,180)) # search for colors in-range of the zone
+    point = cv2.inRange(HSV,(60,100,120),(120,250,220)) # search for colors in-range of the zone
+    point = cv2.erode(point,(20,20))
     center = cv2.moments(point) # find the white pixels labeled from cv2.inRange()
+    cv2.imshow('POINT',point)
     try: # catch to prevent divid/0 errors
         x = int(center['m10']/center['m00']) # find the center x 
         y = int(center['m01']/center['m00']) # fidn the center y
         cv2.circle(frame,(x,y),10,(255,255,255),-1) # put a circle on the spot (removed later)
-        x0 = (x - len(frame[0])/2) * 0.5 # split the found point in half, so that it becomes negative on the left and positive on the right
-        y0 = (y - len(frame)/2) * 0.5 # same as above
-        if(abs(x0) > 15 or abs(y0) > 15):
-            GUI.moveRel(-x0,y0) # move the mouse by the (x0,y0)
+        x0 = (x - len(frame[0])/2) # split the found point in half, so that it becomes negative on the left and positive on the right
+        y0 = (y - len(frame)/2) # same as above
+        if(abs(x0) > 5):
+            
+            GUI.moveRel(-x0,0) # move the mouse by the (x0,y0)
     except:
         pass 
     try:
@@ -123,6 +126,22 @@ while True:
                 motorRightSpeed = 50
                 MotorLeft.run(MoHat.BACKWARD)
                 MotorRight.run(MoHat.BACKWARD)
+        elif(mech.read_pin(pivotButton) == False):
+            pos = GUI.position()[0]
+            size = GUI.size()[0]
+            motorRightSpeed = 100
+            motorLeftSpeed = 100
+            MotorLeft.setSpeed(motorLeftSpeed)
+            MotorRight.setSpeed(motorRightSpeed)
+            
+            if(pos < size/2 - size/6):
+                print('LEFT')
+                MotorLeft.run(MoHat.RELEASE)
+                MotorRight.run(MoHat.FORWARD)
+            if(pos > size/2 + size/6):
+                print('RIGHT')
+                MotorLeft.run(MoHat.FORWARD)
+                MotorRight.run(MoHat.RELEASE)
         else:
             MotorLeft.run(MoHat.RELEASE)
             MotorRight.run(MoHat.RELEASE)
